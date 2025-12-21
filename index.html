@@ -1,71 +1,23 @@
-
-
 <!DOCTYPE html>
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سامانه آزمون تعاملی عربی – پایه هفتم</title>
-
 <style>
-body{
- background:linear-gradient(to right,#eef2f3,#ffffff);
- font-family:sans-serif;
- direction:rtl;
- text-align:center;
- margin:0;
-}
-.container{
- background:#fff;
- max-width:440px;
- margin:20px auto;
- padding:20px;
- border-radius:20px;
- box-shadow:0 10px 0 #0984e3;
-}
-.header{
- background:#f1f2f6;
- padding:10px;
- border-radius:12px;
- margin-bottom:10px;
- font-size:14px;
-}
-input,button{
- width:95%;
- padding:10px;
- margin:6px;
- font-size:15px;
- border-radius:12px;
- border:none;
-}
+body{background:linear-gradient(to right,#eef2f3,#ffffff);font-family:sans-serif;direction:rtl;text-align:center;margin:0}
+.container{background:#fff;max-width:440px;margin:20px auto;padding:20px;border-radius:20px;box-shadow:0 10px 0 #0984e3}
+.header{background:#f1f2f6;padding:10px;border-radius:12px;margin-bottom:10px;font-size:14px}
+input,button{width:95%;padding:10px;margin:6px;font-size:15px;border-radius:12px;border:none}
 button{background:#00b894;color:#fff}
 button:disabled{background:#b2bec3}
 #timer{color:#d63031;font-weight:bold}
-#progressBar{
- height:12px;
- background:#dfe6e9;
- border-radius:10px;
- overflow:hidden;
- margin-bottom:8px
-}
-#progress{
- height:100%;
- width:0%;
- background:#0984e3
-}
-.word{
- color:#d63031;
- font-weight:bold;
- text-decoration:underline;
-}
-.footer{
- font-size:12px;
- color:#636e72;
- margin-top:10px
-}
+#progressBar{height:12px;background:#dfe6e9;border-radius:10px;overflow:hidden;margin-bottom:8px}
+#progress{height:100%;width:0%;background:#0984e3}
+.word{color:#d63031;font-weight:bold;text-decoration:underline}
+.footer{font-size:12px;color:#636e72;margin-top:10px}
 </style>
 </head>
-
 <body>
 
 <div class="container" id="loginBox">
@@ -81,19 +33,13 @@ button:disabled{background:#b2bec3}
 </div>
 
 <div class="container" id="examBox" style="display:none">
-<div class="header">
-<b>سامانه آزمون تعاملی عربی</b><br>
-پایه هفتم
-</div>
-
+<div class="header"><b>سامانه آزمون تعاملی عربی</b><br>پایه هفتم</div>
 <p id="timer"></p>
 <div id="progressBar"><div id="progress"></div></div>
-
 <h4 id="question"></h4>
 <div id="options"></div>
 <p id="result"></p>
 <p>⭐ امتیاز: <span id="score">0</span></p>
-
 <div class="footer">
 طراح: مرجان قاسمیان<br>
 پایه: هفتم ۴<br>
@@ -103,13 +49,29 @@ button:disabled{background:#b2bec3}
 
 <div class="container" id="resultBox" style="display:none"></div>
 
+<audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-4.mp3"></audio>
+<audio id="wrongSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
 <script>
 const questions=[
-{q:"ترجمهٔ واژهٔ مشخص‌شده در کدام گزینه آمده است؟ (اَلجَنَّةُ تَحتَ <span class='word'>أقدام</span> الاُمَّهاتِ.)",
- o:["پا","دست‌ها","دست","پاها"],a:3}
+{q:"ترجمهٔ واژهٔ مشخص‌شده در کدام گزینه آمده است؟ (اَلجَنَّةُ تَحتَ <span class='word'>أقدام</span> الاُمَّهاتِ.)", o:["پا","دست‌ها","دست","پاها"], a:3},
+{q:"در جای خالی ( ......... الطفلُ؟ الطفلُ عِندَ الامِ) کلمه پرسشی مناسب قرار دهید؟", o:["أینَ","ما","مَن","هَل"], a:0},
+{q:"کدام کلمه در این جمله به معنای «زبان» است؟ (سُکوتُ اللسان سَلامَهُ الإنسان.)", o:["سکوتُ","اللسان","سلامه","الانسان"], a:1},
+{q:"املای کدام گزینه غلط است؟", o:["البقره","الدیک","مریمٌ","کتابٌ"], a:2},
+{q:"دقیق‌ترین ترجمهٔ کلمه «شاعره» چیست؟", o:["یک شاعر مرد","یک شاعر زن","دو شاعر زن","دو شاعر مؤنث"], a:1},
+{q:"کدام گزینه صفت است؟", o:["الطبیبه","الناجحه","الشجره","الطالبه"], a:1},
+{q:"کدام کلمه با بقیه گزینه‌ها متفاوت است؟", o:["کاتِب","سائق","صَدیق","مُدرس"], a:2},
+{q:"جملهٔ پرسشی مناسب این جواب کدام است؟ (أنا مُدیرُ المَدرَسَهِ)", o:["مَن أنتَ؟","مَن هو؟","مَن هي؟","مَن أنتِ؟"], a:0},
+{q:"کدام اسم، این کلمه را کامل می‌کند؟ (هاتانِ ...)", o:["رَجُلانِ","بَنتانِ","ممنوعانِ","جَبَلانِ"], a:1},
+{q:"متضاد کدام کلمه صحیح نیست؟", o:["قَلیل ≠ قَریب","وَحده ≠ جَماعَه","جالِس ≠ واقف","صَدیق ≠ عَدوّ"], a:0},
+{q:"کلمه پرسشی «ما» برای کدام جای خالی نامناسب است؟", o:[".... هذه؟ هدیّهٌ لأمّي",".... ذلک؟ ذلک طبیبٌ",".... هاتان؟ هاتان شجرتان",".... تلک؟ اللّوحه"], a:1},
+{q:"مترادف کلمات مقابل را مشخص کنید. (بُستان ـ هَل ـ هذا ـ فائِز)", o:["مدینه ـ أ ـ تلک ـ ناجح","حدیقه ـ أ ـ هذه ـ ناجح","حدیقه ـ أ ـ ذلک ـ بائع","حقیبه ـ نعم ـ هذه ـ ناجح"], a:1},
+{q:"کدام گزینه مثنی نمی‌باشد؟", o:["هذانِ","نسیان","زارعانِ","طفلتانِ"], a:1},
+{q:"ترجمهٔ کدام گزینه صحیح است؟", o:["سوء: بدی","صغیر: بزرگ","مکتبه: اتاق","أخت: دختر"], a:0},
+{q:"کدام گزینه پاسخ درستی برای این سؤال است؟ (مَن تِلکَ البِنتُ؟)", o:["طالبٌ عزیزٌ","لِتلکَ الطالبة","نعم","هیَ أُختُ ثُریّا"], a:3}
 ];
 
-let name="",index=0,score=0,time=120,interval=null,mode="exam";
+let name="",index=0,score=0,time=120,mode="exam",interval=null;
 
 function chooseMode(){
  name=document.getElementById("studentName").value.trim();
@@ -123,57 +85,62 @@ function startTest(m){
  modeBox.style.display="none";
  examBox.style.display="block";
  index=0;score=0;
- score.innerText=0;
+ document.getElementById("score").innerText=score;
  if(mode==="exam"){
   time=120;
   updateTimer();
   interval=setInterval(tick,1000);
- }else{
-  timer.innerText="⏱ بدون محدودیت زمانی";
+ } else {
+  document.getElementById("timer").innerText="⏱ بدون محدودیت زمانی";
  }
- load();
+ loadQuestion();
 }
 
 function tick(){
- if(time<=0){finish();return;}
- time--;updateTimer();
+ if(time<=0){finishTest();return;}
+ time--;
+ updateTimer();
 }
 
 function updateTimer(){
  let m=Math.floor(time/60),s=time%60;
- timer.innerText=`⏱ ${m}:${s<10?"0"+s:s}`;
+ document.getElementById("timer").innerText=`⏱ ${m}:${s<10?"0"+s:s}`;
 }
 
-function load(){
- if(index>=questions.length){finish();return;}
- progress.style.width=(index/questions.length*100)+"%";
- question.innerHTML=questions[index].q;
- options.innerHTML="";
+function loadQuestion(){
+ if(index>=questions.length){finishTest();return;}
+ document.getElementById("progress").style.width=((index/questions.length)*100)+"%";
+ document.getElementById("question").innerHTML=questions[index].q;
+ let optionsDiv=document.getElementById("options");
+ optionsDiv.innerHTML="";
  questions[index].o.forEach((opt,i)=>{
   let b=document.createElement("button");
   b.innerText=opt;
   b.onclick=()=>answer(i);
-  options.appendChild(b);
+  optionsDiv.appendChild(b);
  });
 }
 
 function answer(i){
  document.querySelectorAll("#options button").forEach(b=>b.disabled=true);
+ let result=document.getElementById("result");
  if(i===questions[index].a){
   score++;
   document.getElementById("score").innerText=score;
+  document.getElementById("correctSound").play();
   result.innerText="✔ درست";
- }else{
+ } else {
+  document.getElementById("wrongSound").play();
   result.innerText="✖ نادرست";
  }
- setTimeout(()=>{index++;load();},800);
+ setTimeout(()=>{result.innerText="";index++;loadQuestion();},800);
 }
 
-function finish(){
+function finishTest(){
  clearInterval(interval);
  examBox.style.display="none";
- resultBox.innerHTML=`<h3>${name}<br>امتیاز: ${score}</h3>`;
- resultBox.style.display="block";
+ document.getElementById("resultBox").innerHTML=`<h3>${name}<br>امتیاز: ${score}</h3>`;
+ document.getElementById("resultBox").style.display="block";
 }
 </script>
 
