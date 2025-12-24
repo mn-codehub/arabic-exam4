@@ -8,45 +8,84 @@
 <style>
 body{
  font-family:tahoma;
- background:#f5f6fa;
+ background:linear-gradient(135deg,#74b9ff,#a29bfe);
  direction:rtl;
  text-align:center;
- margin:0
+ margin:0;
+ min-height:100vh
 }
 .container{
  max-width:500px;
  background:#fff;
  margin:20px auto;
- padding:20px;
- border-radius:16px;
- box-shadow:0 8px 20px rgba(0,0,0,.1)
+ padding:22px;
+ border-radius:20px;
+ box-shadow:0 15px 35px rgba(0,0,0,.2)
 }
+h3{color:#2d3436}
+
 button{
  width:100%;
- padding:12px;
- margin:6px 0;
+ padding:13px;
+ margin:8px 0;
  border:none;
- border-radius:12px;
- background:#0984e3;
+ border-radius:14px;
+ background:linear-gradient(to right,#0984e3,#6c5ce7);
  color:#fff;
- font-size:15px
+ font-size:15px;
+ transition:.3s
 }
+button:hover{transform:scale(1.02)}
 button:disabled{background:#b2bec3}
-.option{background:#dfe6e9;color:#000}
-#timeBox{color:#d63031;font-weight:bold}
+.option{background:#dfe6e9;color:#2d3436}
+
+#timeBox{
+ color:#d63031;
+ font-weight:bold;
+ font-size:18px
+}
+
+/* نوار پیشرفت */
+#progressWrap{margin:10px 0}
+#progressText{font-size:14px;margin-bottom:4px}
+#progressBarBg{
+ background:#dfe6e9;
+ border-radius:10px;
+ height:12px;
+ overflow:hidden
+}
+#progressBar{
+ height:100%;
+ width:0%;
+ background:linear-gradient(to right,#00cec9,#6c5ce7);
+ transition:width .4s ease
+}
+
+/* انیمیشن پایان */
+@keyframes finishAnim{
+ from{opacity:0;transform:translateY(30px)}
+ to{opacity:1;transform:translateY(0)}
+}
+.finishAnim{animation:finishAnim .8s ease forwards}
+
 table{
  width:100%;
  border-collapse:collapse;
  margin-top:15px
 }
+th{
+ background:#6c5ce7;
+ color:#fff
+}
 th,td{
  border:1px solid #ccc;
- padding:6px;
+ padding:7px;
  font-size:14px
 }
-.highlight{
- color:#d63031;
- font-weight:bold
+.highlight{color:#d63031;font-weight:bold}
+
+.resetBtn{
+ background:linear-gradient(to right,#d63031,#e84393)
 }
 </style>
 </head>
@@ -55,35 +94,42 @@ th,td{
 
 <div class="container" id="loginBox">
 <h3>آزمون عربی پایه هفتم</h3>
-<p><b>دبیر:</b> بخشعلی‌زاده</p>
-<p><b>طراح:</b> مرجان قاسمیان – هفتم چهار</p>
+<p><b>دبیر:</b> خانم دکتر بخشعلی‌زاده</p>
+<p><b>طراح:</b> مرجان قاسمیان</p>
 <input id="studentName" placeholder="نام و نام خانوادگی">
 <button onclick="start()">شروع آزمون</button>
 </div>
 
 <div class="container" id="examBox" style="display:none">
 <p id="timeBox">⏱ 60</p>
+
+<div id="progressWrap">
+ <div id="progressText">سؤال 1 از 10</div>
+ <div id="progressBarBg">
+  <div id="progressBar"></div>
+ </div>
+</div>
+
 <h4 id="question"></h4>
 <div id="options"></div>
 <p id="feedback"></p>
 </div>
 
-<div class="container" id="resultBox" style="display:none"></div>
+<div class="container finishAnim" id="resultBox" style="display:none"></div>
 
 <audio id="ok" src="https://www.soundjay.com/buttons/sounds/button-4.mp3"></audio>
 <audio id="bad" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
 
 <script>
-/* ===== سوالات (نمونه + قابل افزایش تا ۴۰) ===== */
-const allQuestions = [
+const allQuestions=[
  {q:"ترجمهٔ واژهٔ مشخص شده در کدام گزینه آمده است؟ (اَلجَنَّةُ تَحتَ <span class='highlight'>أقدام</span> الاُمَّهاتِ.)",
   o:["پا","دست‌ها","دست","پاها"],a:3},
  {q:"در جای خالی ( ......... الطفلُ؟ الطفلُ عِندَ أُمِه) کلمه پرسشی مناسب قرار دهید؟",
   o:["أینَ","ما","مَن","هَل"],a:0},
  {q:"کدام کلمه در این جمله به معنای «زبان» است؟ (سُکوتُ اللسان سَلامَهُ الإنسان.)",
   o:["سکوتُ","اللسان","سلامه","الانسان"],a:1},
- {q:"املای کدام گزینه غلط است؟",
-  o:["البقره","الدیک","مریمٌ","کتابٌ"],a:2},
+ {q:"اسم اشاره مناسب برای مفرد مؤنث نزدیک کدام است؟",
+  o:["هَذَا","ذَلِکَ","هَذِهِ","تِلکَ"],a:2},
  {q:"دقیق‌ترین ترجمه کلمه «شاعره» چیست؟",
   o:["یک شاعر مرد","یک شاعر زن","دو شاعر زن","دو شاعر مؤنث"],a:1},
  {q:"کدام گزینه صفت است؟",
@@ -98,38 +144,34 @@ const allQuestions = [
   o:["قَلیل ≠ قَریب","وَحده ≠ جَماعَه","جالِس ≠ واقف","صَدیق ≠ عَدوّ"],a:0}
 ];
 
-/* ===== تنظیمات ===== */
-const TOTAL = 10;
-let questions=[], index=0, score=0, time=60, interval;
+const TOTAL=10;
+let questions=[],index=0,score=0,time=60,interval;
 
-/* ===== شروع آزمون ===== */
 function start(){
  if(localStorage.getItem("exam_done")){
   alert("شما قبلاً در آزمون شرکت کرده‌اید");
   return;
  }
  if(!studentName.value.trim()){
-  alert("نام را وارد کنید");
-  return;
+  alert("نام را وارد کنید");return;
  }
-
- questions = [...allQuestions].sort(()=>0.5-Math.random()).slice(0,TOTAL);
-
+ questions=[...allQuestions].sort(()=>0.5-Math.random()).slice(0,TOTAL);
  loginBox.style.display="none";
  examBox.style.display="block";
-
- interval = setInterval(tick,1000);
+ interval=setInterval(tick,1000);
  showQ();
 }
 
 function tick(){
  time--;
- document.getElementById("timeBox").innerText="⏱ "+time;
+ timeBox.innerText="⏱ "+time;
  if(time<=0) finish();
 }
 
 function showQ(){
  if(index>=questions.length){finish();return;}
+ progressBar.style.width=(index/TOTAL*100)+"%";
+ progressText.innerText=`سؤال ${index+1} از ${TOTAL}`;
  let q=questions[index];
  question.innerHTML=q.q;
  options.innerHTML="";
@@ -146,9 +188,11 @@ function answer(i){
  document.querySelectorAll(".option").forEach(b=>b.disabled=true);
  if(i===questions[index].a){
   score++; ok.play();
+  feedback.style.color="#00b894";
   feedback.innerText="✔ پاسخ درست";
  }else{
   bad.play();
+  feedback.style.color="#d63031";
   feedback.innerText="✖ پاسخ نادرست";
  }
  setTimeout(()=>{
@@ -161,7 +205,6 @@ function answer(i){
 function finish(){
  clearInterval(interval);
  localStorage.setItem("exam_done","yes");
-
  let records=JSON.parse(localStorage.getItem("records")||"[]");
  records.push({name:studentName.value,score});
  localStorage.setItem("records",JSON.stringify(records));
@@ -170,8 +213,9 @@ function finish(){
  let rows=records.map(r=>`<tr><td>${r.name}</td><td>${r.score}</td></tr>`).join("");
 
  examBox.style.display="none";
+ resultBox.style.display="block";
  resultBox.innerHTML=`
- <h3>پایان آزمون</h3>
+ <h3>پایان آزمون 🎉</h3>
  <p>نمره شما: ${score} از 10</p>
  <table>
  <tr><th>نام</th><th>نمره</th></tr>
@@ -179,11 +223,18 @@ function finish(){
  </table>
  <p>تعداد شرکت‌کنندگان: ${records.length}</p>
  <p>بالاترین نمره: ${max}</p>
+ <button class="resetBtn" onclick="resetExam()">🔐 ریست آزمون (ویژه دبیر)</button>
  `;
- resultBox.style.display="block";
+}
+
+function resetExam(){
+ if(confirm("آیا مطمئن هستید که آزمون ریست شود؟")){
+  localStorage.removeItem("records");
+  localStorage.removeItem("exam_done");
+  location.reload();
+ }
 }
 </script>
 
 </body>
 </html>
-
